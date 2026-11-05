@@ -260,7 +260,7 @@ export function Navbar() {
               <span>{t("nav.howItWorks")}</span>
               {isActive("/how-it-works") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
             </Link>
-            <Link
+            {/* <Link
               href="/features"
               className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/features")
                 ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
@@ -270,8 +270,8 @@ export function Navbar() {
             >
               <span>{t("nav.features")}</span>
               {isActive("/features") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               href="/faq"
               className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/faq")
                 ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
@@ -281,7 +281,7 @@ export function Navbar() {
             >
               <span>{t("nav.faq")}</span>
               {isActive("/faq") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
+            </Link> */}
             <Link
               href="/about"
               className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/about")
