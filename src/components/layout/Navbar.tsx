@@ -102,15 +102,19 @@ export function Navbar() {
   }, []);
 
   const isActive = (path: string) => {
-    return pathname === path;
+    if (path === "/") {
+      return pathname === "/";
+    }
+    return pathname === path || pathname?.startsWith(`${path}/`);
   };
 
   const navLinkClass = (path: string) => {
     const active = isActive(path);
-    return `relative px-3 py-2 text-sm font-semibold transition-all duration-200 whitespace-nowrap ${active
-      ? "text-slate-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-500 after:rounded-full after:shadow-sm after:shadow-blue-500/50"
-      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg"
-      }`;
+    return `relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
+      active
+        ? "text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-bold shadow-xs after:absolute after:bottom-0 after:left-2.5 after:right-2.5 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:rounded-full after:shadow-sm after:shadow-blue-500/50"
+        : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-slate-800/50 active:scale-95"
+    }`;
   };
 
   return (
@@ -126,7 +130,7 @@ export function Navbar() {
 
         {/* Navigation Links - Center/Left (Desktop only) */}
         <nav
-          className="hidden lg:flex items-center space-x-1"
+          className="hidden lg:flex items-center space-x-1.5"
           aria-label="Primary navigation"
         >
           <Link href="/" className={navLinkClass("/")} onClick={() => setMenuOpen(false)}>
@@ -179,10 +183,11 @@ export function Navbar() {
                     setLanguage("en");
                     setLangMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${language === "en"
-                    ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                    }`}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    language === "en"
+                      ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                  }`}
                 >
                   <img
                     src="/images/english.png"
@@ -199,10 +204,11 @@ export function Navbar() {
                     setLanguage("km");
                     setLangMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${language === "km"
-                    ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
-                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                    }`}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    language === "km"
+                      ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                  }`}
                 >
                   <img
                     src="/images/khmer.png"
@@ -240,10 +246,11 @@ export function Navbar() {
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col space-y-1">
             <Link
               href="/"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/")
-                ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                isActive("/")
+                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{t("nav.home")}</span>
@@ -251,10 +258,11 @@ export function Navbar() {
             </Link>
             <Link
               href="/how-it-works"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/how-it-works")
-                ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                isActive("/how-it-works")
+                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{t("nav.howItWorks")}</span>
@@ -262,10 +270,11 @@ export function Navbar() {
             </Link>
             {/* <Link
               href="/features"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/features")
-                ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                isActive("/features")
+                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{t("nav.features")}</span>
@@ -273,10 +282,11 @@ export function Navbar() {
             </Link> */}
             {/* <Link
               href="/faq"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/faq")
-                ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                isActive("/faq")
+                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{t("nav.faq")}</span>
@@ -284,10 +294,11 @@ export function Navbar() {
             </Link> */}
             <Link
               href="/about"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${isActive("/about")
-                ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-                }`}
+              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                isActive("/about")
+                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               <span>{t("nav.about")}</span>
