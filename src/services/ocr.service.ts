@@ -1,6 +1,9 @@
 import { OCRLanguage } from "@/types/ocr";
 import { cleanOCRText } from "@/lib/ocr-cleaner";
 
+const OCR_ENDPOINT =
+  process.env.NEXT_PUBLIC_OCR_API_URL || "https://ocr.ebc.edu.kh/api/ocr_api";
+
 interface OCROptions {
   retries?: number;
   timeout?: number;
@@ -27,11 +30,14 @@ export async function processOCR(
       const timeoutId = setTimeout(() => controller.abort(), timeout);
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file, file.name);
       formData.append("language", language);
 
-      const response = await fetch("/api/ocr", {
+      const response = await fetch(OCR_ENDPOINT, {
         method: "POST",
+        headers: {
+          accept: "*/*",
+        },
         body: formData,
         signal: controller.signal,
       });
@@ -42,16 +48,28 @@ export async function processOCR(
         const errorData = await response.json().catch(() => ({
           error: "Unknown error occurred",
         }));
-        throw new Error(errorData.error || `Server error: ${response.status}`);
+        throw new Error(
+          errorData.error ||
+            errorData.message ||
+            errorData.msg ||
+            `Server error: ${response.status}`
+        );
       }
 
       const data = await response.json();
 
-      if (!data.status) {
-        throw new Error(data.error || "OCR processing failed");
+      if (typeof data.status === "boolean" && !data.status) {
+        throw new Error(data.error || data.message || data.msg || "OCR processing failed");
       }
 
-      const extractedText = cleanOCRText(data.text);
+      const rawText =
+        typeof data.msg === "string"
+          ? data.msg
+          : typeof data.text === "string"
+            ? data.text
+            : "";
+
+      const extractedText = cleanOCRText(rawText);
 
       if (!extractedText) {
         return "No text detected in the image. Please try a clearer image or different file.";

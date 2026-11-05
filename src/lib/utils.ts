@@ -77,3 +77,55 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength - 3) + '...';
 }
+
+/**
+ * Extracts total page count from a PDF ArrayBuffer
+ * @param buffer - ArrayBuffer of the PDF file
+ * @returns Total number of pages (defaults to 1 if unknown)
+ */
+export function getPDFPageCount(buffer: ArrayBuffer): number {
+  try {
+    const text = new TextDecoder("latin1").decode(buffer);
+
+    // Method 1: Look for root /Type /Pages ... /Count N or /Count N ... /Type /Pages
+    const countMatches: number[] = [];
+
+    const regexPagesCount = /\/Type\s*\/Pages\b[\s\S]{1,1000}?\/Count\s+(\d+)/g;
+    let match: RegExpExecArray | null;
+    while ((match = regexPagesCount.exec(text)) !== null) {
+      countMatches.push(parseInt(match[1], 10));
+    }
+
+    const regexCountPages = /\/Count\s+(\d+)[\s\S]{1,1000}?\/Type\s*\/Pages\b/g;
+    while ((match = regexCountPages.exec(text)) !== null) {
+      countMatches.push(parseInt(match[1], 10));
+    }
+
+    if (countMatches.length > 0) {
+      return Math.max(...countMatches);
+    }
+
+    // Method 2: Count page objects: /Type /Page (excluding /Pages)
+    const pageMatches = text.match(/\/Type\s*\/Page\b(?!\s*s)/g);
+    if (pageMatches && pageMatches.length > 0) {
+      return pageMatches.length;
+    }
+
+    // Method 3: Fallback search for any /Count <num>
+    const regexCount = /\/Count\s+(\d+)/g;
+    while ((match = regexCount.exec(text)) !== null) {
+      const val = parseInt(match[1], 10);
+      if (val > 0 && val < 5000) {
+        countMatches.push(val);
+      }
+    }
+
+    if (countMatches.length > 0) {
+      return Math.max(...countMatches);
+    }
+  } catch (error) {
+    console.warn("Could not determine PDF page count:", error);
+  }
+
+  return 1;
+}

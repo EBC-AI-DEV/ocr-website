@@ -97,11 +97,16 @@ export function FileUploader({
 
       {selectedFile && (
         <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl">
-          <span className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-green-100 dark:bg-green-950 rounded-lg">
+          <span
+            className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg ${
+              selectedFile.type === "application/pdf"
+                ? "bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/60"
+                : "bg-green-100 dark:bg-green-950 text-green-600 dark:text-green-400"
+            }`}
+          >
             <Icon
-              name={selectedFile.type === "application/pdf" ? "file" : "image"}
+              name={selectedFile.type === "application/pdf" ? "pdf" : "image"}
               size={18}
-              className="text-green-600 dark:text-green-400"
             />
           </span>
           <div className="flex-1 min-w-0">

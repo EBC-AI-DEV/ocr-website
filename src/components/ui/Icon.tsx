@@ -15,6 +15,7 @@ export type IconName =
   | "info"
   | "menu"
   | "moon"
+  | "pdf"
   | "scan"
   | "spark"
   | "sun"
@@ -100,6 +101,15 @@ export function Icon({ name, size = 18, className }: IconProps) {
     moon: (
       <>
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </>
+    ),
+    pdf: (
+      <>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <path d="M8 17v-4h1.8a1.2 1.2 0 0 1 0 2.4H8" />
+        <path d="M12.5 17v-4h1a1.8 1.8 0 0 1 0 4h-1" />
+        <path d="M16.5 17v-4h2.2M16.5 15h1.5" />
       </>
     ),
     scan: (

@@ -6,8 +6,9 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 const REQUEST_TIMEOUT = 30000; // 30 seconds
 
 interface OCRApiResponse {
-  msg: string;
-  status: boolean;
+  msg?: string;
+  text?: string;
+  status?: boolean;
 }
 
 export async function POST(request: NextRequest) {
@@ -49,8 +50,8 @@ export async function POST(request: NextRequest) {
     const apiUsername = process.env.OCR_API_USERNAME;
     const apiSecretKey = process.env.OCR_API_SECRET_KEY;
 
-    if (!apiUrl || !apiUsername || !apiSecretKey) {
-      console.error("Missing OCR API configuration");
+    if (!apiUrl) {
+      console.error("Missing OCR API configuration: OCR_API_URL is not set");
       return NextResponse.json(
         {
           error: "OCR service is not configured properly",
@@ -62,20 +63,44 @@ export async function POST(request: NextRequest) {
 
     // Create FormData for the external API
     const externalFormData = new FormData();
-    externalFormData.append("file", file);
+    externalFormData.append("file", file, file.name);
 
     // Create AbortController for timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
     try {
-      // Forward request to EBC OCR API
-      const response = await fetch(apiUrl, {
+      // Build request headers (auth headers are optional)
+      const headers: Record<string, string> = {
+        accept: "*/*",
+      };
+      if (apiUsername) {
+        headers["X-Username"] = apiUsername;
+      }
+      if (apiSecretKey) {
+        headers["X-Secret-Key"] = apiSecretKey;
+      }
+
+      // Check for optional mode parameter
+      const mode =
+        (formData.get("mode") as string | null) ||
+        request.nextUrl.searchParams.get("mode");
+
+      let endpointUrl = apiUrl;
+      if (mode) {
+        try {
+          const parsedUrl = new URL(apiUrl);
+          parsedUrl.searchParams.set("mode", mode);
+          endpointUrl = parsedUrl.toString();
+        } catch {
+          endpointUrl = apiUrl;
+        }
+      }
+
+      // Forward request to OCR API
+      const response = await fetch(endpointUrl, {
         method: "POST",
-        headers: {
-          "X-Username": apiUsername,
-          "X-Secret-Key": apiSecretKey,
-        },
+        headers,
         body: externalFormData,
         signal: controller.signal,
       });
@@ -90,7 +115,7 @@ export async function POST(request: NextRequest) {
           console.error(`OCR API error (${response.status}):`, errorData);
         } catch (e) {
           const errorText = await response.text();
-          console.error(`OCR API returned status ${response.status}:`, errorText);
+          console.error(`OCR API returned status ${response.status}:`, errorText, e);
           if (errorText) errorMessage = errorText;
         }
 
@@ -105,8 +130,11 @@ export async function POST(request: NextRequest) {
 
       const data: OCRApiResponse = await response.json();
 
+      const rawText = data.msg ?? data.text ?? "";
+      const isSuccess = typeof data.status === "boolean" ? data.status : true;
+
       // Validate response structure
-      if (typeof data.status === "undefined" || typeof data.msg === "undefined") {
+      if (typeof data.status === "undefined" && typeof data.msg === "undefined" && typeof data.text === "undefined") {
         console.error("Invalid OCR API response structure", data);
         return NextResponse.json(
           {
@@ -119,8 +147,8 @@ export async function POST(request: NextRequest) {
 
       // Return the OCR result
       return NextResponse.json({
-        text: cleanOCRText(data.msg),
-        status: data.status,
+        text: cleanOCRText(rawText),
+        status: isSuccess,
       });
     } catch (fetchError: unknown) {
       clearTimeout(timeoutId);
