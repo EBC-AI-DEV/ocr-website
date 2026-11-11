@@ -5,18 +5,12 @@ Implemented Nokora as the primary font family for all Khmer text across the webs
 
 ## Implementation Details
 
-### 1. **Font Import** (`src/app/layout.tsx`)
+### 1. **Font Import** (`src/app/globals.css`)
 
-Added Nokora from Google Fonts with all available weights:
+Nokora is loaded from Google Fonts with all available weights, so the family name `"Nokora"` can be used directly in CSS:
 
-```typescript
-import { Inter, Kantumruy_Pro, Moul, Nokora } from "next/font/google";
-
-const nokora = Nokora({
-  variable: "--font-nokora",
-  subsets: ["khmer", "latin"],
-  weight: ["100", "300", "400", "700", "900"],
-});
+```css
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Moul&family=Nokora:wght@100;300;400;700;900&display=swap');
 ```
 
 **Available Weights:**
@@ -26,22 +20,13 @@ const nokora = Nokora({
 - 700 (Bold)
 - 900 (Black)
 
-### 2. **CSS Variable Registration**
-
-Added to root HTML element:
-```typescript
-className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable}`}
-```
-
-Creates CSS variable: `--font-nokora`
-
-### 3. **Global Font Configuration** (`src/app/globals.css`)
+### 2. **Global Font Configuration** (`src/app/globals.css`)
 
 #### Base Body Font
 ```css
 body {
   margin: 0;
-  font-family: "Nokora", var(--font-nokora), "Kantumruy Pro", var(--font-kantumruy-pro), var(--font-inter), "Inter", sans-serif;
+  font-family: "Nokora", sans-serif;
   -webkit-font-smoothing: antialiased;
   font-optical-sizing: auto;
 }
@@ -50,63 +35,60 @@ body {
 #### Khmer Text Class
 ```css
 .khmer {
-  font-family: "Nokora", var(--font-nokora), var(--font-kantumruy-pro), "Kantumruy Pro", var(--font-inter), "Inter", sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
 }
 ```
 
 **Font Stack Priority:**
 1. Nokora (Google Fonts)
-2. CSS Variable fallback
-3. Kantumruy Pro (fallback)
-4. Inter (fallback)
-5. System sans-serif
+2. System sans-serif
 
 #### Decorative Khmer Class
 ```css
 .khmer-decorative {
-  font-family: var(--font-moul), "Moul", "Nokora", var(--font-nokora), var(--font-kantumruy-pro), "Kantumruy Pro", sans-serif;
+  font-family: 'Moul', "Nokora", sans-serif;
   font-optical-sizing: auto;
 }
 ```
 
 For decorative headings, Moul takes priority with Nokora as fallback.
 
-### 4. **Font Weight Utilities**
+### 3. **Font Weight Utilities**
 
 Added specific weight classes for precise typography control:
 
 ```css
 .khmer-thin {
-  font-family: "Nokora", var(--font-nokora), sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
   font-weight: 100;
   font-style: normal;
 }
 
 .khmer-light {
-  font-family: "Nokora", var(--font-nokora), sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
   font-weight: 300;
   font-style: normal;
 }
 
 .khmer-regular {
-  font-family: "Nokora", var(--font-nokora), sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
 }
 
 .khmer-bold {
-  font-family: "Nokora", var(--font-nokora), sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
   font-weight: 700;
   font-style: normal;
 }
 
 .khmer-black {
-  font-family: "Nokora", var(--font-nokora), sans-serif;
+  font-family: "Nokora", sans-serif;
   font-optical-sizing: auto;
   font-weight: 900;
   font-style: normal;
@@ -284,13 +266,10 @@ font-size: 11px-13px; font-weight: 300;
 ## Fallback Strategy
 
 ```
-Nokora → Kantumruy Pro → Inter → System Sans-Serif
+Nokora → System Sans-Serif
 ```
 
-If Nokora fails to load:
-1. Kantumruy Pro provides similar Khmer rendering
-2. Inter handles Latin gracefully
-3. System font ensures text always displays
+If Nokora fails to load, the system sans-serif font ensures text always displays.
 
 ## Dark Mode Compatibility
 
@@ -320,14 +299,8 @@ Nokora renders beautifully in both light and dark modes:
 - [x] No FOUT (Flash of Unstyled Text)
 - [x] TypeScript compilation passes
 
-## Comparison with Previous Fonts
+## Why Nokora
 
-### Before (Kantumruy Pro)
-- Modern, clean
-- Good for UI elements
-- Limited weight options
-
-### After (Nokora)
 - More traditional Khmer aesthetic
 - 5 weight options (100-900)
 - Better optical sizing

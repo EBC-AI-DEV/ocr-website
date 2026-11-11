@@ -301,7 +301,7 @@ export function OCRResult({
               }`}
               value={text}
               onChange={(e) => onTextChange(e.target.value)}
-              style={{ fontFamily: "'Kantumruy Pro', 'Inter', system-ui, sans-serif" }}
+              style={{ fontFamily: '"Nokora", sans-serif' }}
               placeholder={
                 isKm
                   ? "អត្ថបទដែលបានស្រង់នឹងបង្ហាញនៅទីនេះ..."

@@ -1,32 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Kantumruy_Pro, Moul, Nokora } from "next/font/google";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const kantumruyPro = Kantumruy_Pro({
-  variable: "--font-kantumruy-pro",
-  subsets: ["khmer", "latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const moul = Moul({
-  variable: "--font-moul",
-  subsets: ["khmer"],
-  weight: ["400"],
-});
-
-const nokora = Nokora({
-  variable: "--font-nokora",
-  subsets: ["khmer", "latin"],
-  weight: ["100", "300", "400", "700", "900"],
-});
 
 export const metadata: Metadata = {
   title: "EBC OCR - Convert Khmer & English Documents to Text",
@@ -56,7 +31,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable} scroll-smooth`}
+      className="scroll-smooth"
     >
       <head>
         <script

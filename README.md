@@ -15,21 +15,22 @@ A modern, fast, and accurate OCR (Optical Character Recognition) web application
 
 ### Core Functionality
 - 🌍 **Bilingual OCR**: Support for Khmer (ខ្មែរ), English, or both languages simultaneously
-- 📄 **Multiple Formats**: Process PNG, JPG, and PDF files (up to 10MB)
+- 📄 **Multiple Formats**: Process PNG, JPG, and PDF files (up to 10MB, PDFs up to 50 pages)
+- 📡 **Live PDF Results**: PDF text streams in line by line while the document is processed
 - 💾 **Export Options**: Download extracted text as TXT or Word (.doc) files
 - ✏️ **Edit & Copy**: Edit extracted text directly and copy to clipboard
-- 🚀 **Fast Processing**: Real-time OCR with retry logic and timeout handling
+- 🚀 **Reliable Processing**: Retry logic with backoff and timeout handling
 
 ### User Experience
 - 🎨 **Dark Mode**: Complete dark mode support with system preference detection
 - 🌐 **Bilingual UI**: Switch between English and Khmer interface
 - 📱 **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
-- ♿ **Accessible**: WCAG AA compliant with keyboard navigation
-- 🎯 **Scanner Modes**: Standard view, scanner effect, and line detection visualization
+- ♿ **Accessible**: Keyboard navigation and `prefers-reduced-motion` support
+- 🎞️ **Page Transitions**: Subtle fade-in page transitions built with Motion for React
 
 ### Advanced Features
-- 📊 **PDF Viewer**: Built-in PDF viewer with zoom controls (50%-200%)
-- 🎨 **Nokora Font**: Optimized Khmer typography with font-optical-sizing
+- 📊 **PDF Viewer**: Built-in PDF viewer with page navigation and zoom controls (50%-200%)
+- 🎨 **Nokora Font**: A single typeface for Khmer and English text, with font-optical-sizing
 - 🔒 **Privacy First**: Secure file processing with automatic cleanup
 - ⚡ **Performance**: Optimized with debouncing, memoization, and efficient rendering
 - 🛡️ **Security**: Input validation, XSS prevention, file type checking
@@ -39,9 +40,10 @@ A modern, fast, and accurate OCR (Optical Character Recognition) web application
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Node.js** 18.17.0 or higher
+- **Node.js** 20.9.0 or higher (required by Next.js 16)
 - **npm** 9.0.0 or higher
 - **Git** Latest version
+- **Docker** (optional, for container deployment)
 
 ### Installation
 
@@ -53,9 +55,8 @@ cd ocr-website
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your API credentials
+# 3. Set up environment variables (optional for local development)
+# Create .env.local; see "Environment Variables" below
 
 # 4. Start development server
 npm run dev
@@ -70,14 +71,14 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ```bash
 # Development
 npm run dev              # Start dev server (localhost:3000)
-npm run build            # Production build (2-3s)
-npm start               # Start production server
+npm run build            # Production build (runs type-check first via prebuild)
+npm start                # Start production server
 
 # Quality Checks
-npm run type-check      # TypeScript validation
-npm run lint            # ESLint check
-npm run lint:fix        # Auto-fix ESLint issues
-npm run check           # Type-check + Lint (recommended before commit)
+npm run type-check       # TypeScript validation
+npm run lint             # ESLint check
+npm run lint:fix         # Auto-fix ESLint issues
+npm run check            # Type-check + Lint (recommended before commit)
 ```
 
 ---
@@ -89,11 +90,15 @@ npm run check           # Type-check + Lint (recommended before commit)
 - **UI Library**: [React 19.3.0](https://react.dev/)
 - **Language**: [TypeScript 5](https://www.typescriptlang.org/) (Strict mode)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Animation**: [Motion for React](https://motion.dev/) (`motion` 14)
 
 ### Typography
-- **Khmer**: Nokora (100, 300, 400, 700, 900 weights)
-- **Khmer Decorative**: Moul
-- **English**: Inter (400-800 weights)
+- **All text (Khmer & English)**: [Nokora](https://fonts.google.com/specimen/Nokora) (100, 300, 400, 700, 900 weights)
+- Loaded from Google Fonts in `src/app/globals.css` and applied with:
+
+```css
+font-family: "Nokora", sans-serif;
+```
 
 ### Development
 - **Bundler**: Turbopack (Next.js 16)
@@ -109,47 +114,44 @@ npm run check           # Type-check + Lint (recommended before commit)
 ocr-website/
 ├── src/
 │   ├── app/                    # Next.js 16 App Router
-│   │   ├── (website)/         # Public pages
-│   │   │   ├── page.tsx       # Home page
-│   │   │   ├── upload/        # Upload interface
-│   │   │   ├── about/         # About page
-│   │   │   ├── features/      # Features showcase
-│   │   │   ├── faq/          # FAQ
-│   │   │   └── how-it-works/ # Process explanation
-│   │   ├── api/               # API routes
-│   │   │   ├── ocr/          # OCR processing
-│   │   │   └── health/       # Health check
-│   │   ├── layout.tsx         # Root layout
-│   │   └── globals.css        # Global styles
+│   │   ├── (website)/          # Public pages (shared Navbar/Footer layout)
+│   │   │   ├── page.tsx        # Home page
+│   │   │   ├── template.tsx    # Page transition wrapper
+│   │   │   ├── upload/         # Upload interface
+│   │   │   ├── ocr-upload/     # Alternative upload workspace
+│   │   │   ├── about/          # About page
+│   │   │   ├── contact/        # Contact page
+│   │   │   ├── features/       # Features showcase
+│   │   │   ├── faq/            # FAQ
+│   │   │   └── how-it-works/   # Process explanation
+│   │   ├── api/                # API routes
+│   │   │   ├── ocr/            # OCR proxy (server-side credentials)
+│   │   │   └── health/         # Health check (used by Docker)
+│   │   ├── layout.tsx          # Root layout
+│   │   └── globals.css         # Global styles & fonts
 │   │
-│   ├── components/            # React components
-│   │   ├── layout/           # Navbar, Footer
-│   │   ├── ocr/              # OCR features
-│   │   ├── ui/               # Reusable UI
-│   │   └── ErrorBoundary.tsx # Error handling
+│   ├── components/             # React components
+│   │   ├── animations/         # PageTransition, FadeIn, Reveal, Stagger
+│   │   ├── layout/             # Navbar, Footer
+│   │   ├── ocr/                # Uploader, preview, result, processing state
+│   │   ├── ui/                 # Button, Icon, Toast, ScrollToTop
+│   │   └── ErrorBoundary.tsx   # Error handling
 │   │
-│   ├── contexts/             # React contexts
-│   │   ├── ThemeContext.tsx  # Dark mode
-│   │   └── LanguageContext.tsx # Bilingual
-│   │
-│   ├── hooks/                # Custom hooks
-│   ├── services/             # Business logic
-│   ├── lib/                  # Utilities
-│   ├── constants/            # Configuration
-│   └── types/                # TypeScript types
+│   ├── config/                 # Site & OCR settings (file size, page limit)
+│   ├── constants/              # Zoom, upload, OCR timing constants
+│   ├── contexts/               # Theme (dark mode) & Language (EN/KM)
+│   ├── hooks/                  # useOCR
+│   ├── lib/                    # Utilities, validation, motion presets
+│   ├── services/               # OCR API client (standard + streaming)
+│   └── types/                  # TypeScript types
 │
-├── public/                   # Static assets
-├── Documentation/            # Feature docs
-├── package.json             # v1.0.0
-└── [26 documentation files]
+├── docs/                       # Project documentation
+├── public/                     # Static assets
+├── Dockerfile                  # Multi-stage production image
+├── docker-compose.yml          # Container deployment
+├── build.sh                    # Build & push Docker image
+└── package.json                # v1.0.0
 ```
-
-**Stats:**
-- 37 TypeScript/TSX files
-- ~11,000 lines of code
-- 26 documentation files
-- 0 ESLint errors
-- 100% TypeScript coverage
 
 ---
 
@@ -196,36 +198,74 @@ const translations = {
 
 ### File Upload Limits
 
-Edit `src/lib/validations.ts`:
+Edit `ocrConfig` in `src/config/site.ts`:
 
 ```typescript
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+export const ocrConfig = {
+  maxFileSize: 10 * 1024 * 1024, // 10 MB
+  maxPdfPages: 50,               // Maximum PDF pages per document
+  acceptedFormats: {
+    "image/png": [".png"],
+    "image/jpeg": [".jpg", ".jpeg"],
+    "application/pdf": [".pdf"],
+  },
+  // ...
+};
 ```
 
 ---
 
 ## 🔧 Environment Variables
 
-Create `.env.local` in the root directory:
+Create `.env.local` in the root directory. All variables are optional for local development; the browser client falls back to the EBC OCR endpoints.
 
 ```bash
-# OCR API Configuration
+# Browser-side OCR endpoints (optional overrides)
+NEXT_PUBLIC_OCR_API_URL=https://ocr.ebc.edu.kh/api/ocr_api
+NEXT_PUBLIC_OCR_STREAM_API_URL=https://ocr.ebc.edu.kh/api/ocr_api?mode=events
+
+# Server-side OCR proxy (/api/ocr)
 OCR_API_URL=https://api.example.com/ocr
 OCR_API_USERNAME=your-username
 OCR_API_SECRET_KEY=your-secret-key
-
-# Optional
-NODE_ENV=development
 ```
 
-See `.env.example` for complete template.
+For Docker deployment, `build.sh` and `docker-compose.yml` read a `.env` file that also needs:
+
+```bash
+REGISTRY=registry.example.com/your-org   # Required by build.sh
+IMAGE_NAME=ocr-website                   # Optional (default: ocr-website)
+IMAGE_TAG=latest                         # Optional
+APP_PORT=3000                            # Optional host port (default: 3000)
+REGISTRY_USERNAME=...                    # Optional, for docker login
+REGISTRY_PASSWORD=...                    # Optional, for docker login
+```
+
+> Never commit `.env` or `.env.local`; they contain credentials.
 
 ---
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Docker
+
+The app builds as a Next.js [standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) output inside a multi-stage `node:24-alpine` image. The container runs as a non-root user, listens on port 3000, and checks `/api/health` for its health status.
+
+```bash
+# Build and push the image (tag: <version>-<git sha> and latest)
+./build.sh
+
+# Build with a specific tag
+./build.sh v1.2.0
+
+# Build only, without pushing
+NO_PUSH=1 ./build.sh
+
+# Run with Docker Compose
+docker compose up -d
+```
+
+### Vercel
 
 1. Push code to GitHub
 2. Import project to [Vercel](https://vercel.com)
@@ -239,20 +279,20 @@ See `.env.example` for complete template.
 - **Netlify**: Drag & drop or Git integration
 - **AWS Amplify**: `amplify init` and deploy
 - **Railway**: Connect GitHub and deploy
-- **Self-hosted**: Use Docker or PM2
+- **Self-hosted**: Use the Docker image above, or `npm run build && npm start` with PM2
 
 ### Build Verification
 
 ```bash
 # Run checks before deployment
 npm run check           # TypeScript + ESLint
-npm run build          # Production build
+npm run build           # Production build
 
 # Expected output:
 # ✓ TypeScript: 0 errors
-# ✓ ESLint: 0 errors, 7 warnings
-# ✓ Build: SUCCESS (2-3s)
-# ✓ Static pages: 17 generated
+# ✓ ESLint: 0 errors (warnings only)
+# ✓ Build: Compiled successfully
+# ✓ Static pages: 19 generated
 ```
 
 ---
@@ -260,13 +300,14 @@ npm run build          # Production build
 ## 📚 Documentation
 
 ### Getting Started
-- **[SETUP.md](SETUP.md)** - Complete development setup guide
-- **[.env.example](.env.example)** - Environment configuration
+- **[docs/SETUP.md](docs/SETUP.md)** - Complete development setup guide
+- **[docs/DEVELOPER_GUIDE.md](docs/DEVELOPER_GUIDE.md)** - Developer guide
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Deployment guide
 
 ### Project Information
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current project status
-- **[NEXT_STEPS.md](NEXT_STEPS.md)** - Enhancement roadmap
+- **[docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)** - Current project status
+- **[docs/NEXT_STEPS.md](docs/NEXT_STEPS.md)** - Enhancement roadmap
 
 ### Contributing
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
@@ -274,8 +315,11 @@ npm run build          # Production build
 - **[LICENSE](LICENSE)** - MIT License
 
 ### Technical Docs
-- **[Documentation/](Documentation/)** - Feature-specific documentation
-- **[ESLINT_FIXES_SUMMARY.md](ESLINT_FIXES_SUMMARY.md)** - Code quality improvements
+- **[docs/](docs/)** - All feature-specific documentation
+- **[docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** - Colors, typography, and components
+- **[docs/NOKORA_FONT_IMPLEMENTATION.md](docs/NOKORA_FONT_IMPLEMENTATION.md)** - Font setup
+- **[docs/PDF_VIEWER_IMPROVEMENTS.md](docs/PDF_VIEWER_IMPROVEMENTS.md)** - PDF viewer
+- **[docs/ESLINT_FIXES_SUMMARY.md](docs/ESLINT_FIXES_SUMMARY.md)** - Code quality improvements
 
 ---
 
@@ -296,10 +340,9 @@ npm run build          # Production build
 
 ### Build Stats
 - ✅ TypeScript: 0 errors
-- ✅ ESLint: 0 errors, 7 warnings
-- ✅ Build time: 2-3s
-- ✅ Bundle size: 1.3MB
-- ✅ Static pages: 17
+- ✅ ESLint: 0 errors, 12 warnings
+- ✅ Static pages: 19
+- 📁 49 TypeScript/TSX files, ~10,700 lines of code
 
 ---
 
@@ -343,11 +386,12 @@ git push origin feature/amazing-feature
 
 ### Implemented Measures
 - ✅ Input validation and sanitization
-- ✅ File type and size restrictions
+- ✅ File type, size, and PDF page-count restrictions
 - ✅ XSS prevention in exports
 - ✅ Request timeout handling
 - ✅ Secure error messages
 - ✅ No sensitive data logging
+- ✅ Docker container runs as a non-root user
 
 ### Reporting Vulnerabilities
 
@@ -369,7 +413,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Next.js](https://nextjs.org/) - Amazing React framework
 - [Vercel](https://vercel.com/) - Hosting and deployment
-- [Google Fonts](https://fonts.google.com/) - Nokora and Inter fonts
+- [Google Fonts](https://fonts.google.com/) - Nokora font
+- [Motion](https://motion.dev/) - Animation library
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - All contributors and users
 
@@ -378,7 +423,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Support
 
 ### Get Help
-- 📖 **Documentation**: Check [SETUP.md](SETUP.md) first
+- 📖 **Documentation**: Check [docs/SETUP.md](docs/SETUP.md) first
 - 🐛 **Bug Reports**: [Create an issue](../../issues)
 - 💡 **Feature Requests**: [Create an issue](../../issues)
 - 💬 **Questions**: [Start a discussion](../../discussions)
@@ -393,7 +438,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Current Version**: 1.0.0  
 **Status**: ✅ Production Ready  
-**Last Updated**: 2026-11-02  
+**Last Updated**: 2026-11-11  
 **Quality Score**: 9.2/10
 
 **Ready for deployment!** 🚀
