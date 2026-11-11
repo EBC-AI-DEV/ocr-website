@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Kantumruy_Pro, Moul, Nokora } from "next/font/google";
+import { Inter, Moul } from "next/font/google";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { MotionProvider } from "@/components/providers/MotionProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,22 +11,10 @@ const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-const kantumruyPro = Kantumruy_Pro({
-  variable: "--font-kantumruy-pro",
-  subsets: ["khmer", "latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
 const moul = Moul({
   variable: "--font-moul",
   subsets: ["khmer"],
   weight: ["400"],
-});
-
-const nokora = Nokora({
-  variable: "--font-nokora",
-  subsets: ["khmer", "latin"],
-  weight: ["100", "300", "400", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -56,7 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable}`}
+      className={`${inter.variable} ${moul.variable}`}
     >
       <head>
         <script
@@ -79,7 +68,9 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
         <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
+          <LanguageProvider>
+            <MotionProvider>{children}</MotionProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -6,6 +6,12 @@ import { transitions } from "./config";
  * Requirement:
  * Enter: Opacity: 0 -> 1, Y: 12px -> 0, Duration: 0.45s, Easing: easeOut
  * Exit: Opacity: 1 -> 0, Y: 0 -> -8px, Duration: 0.2s, Easing: easeIn
+ *
+ * Note: the `exit` state is intentionally NOT wired up. In the App Router the
+ * previous route segment is unmounted as soon as the new one commits, so
+ * `<AnimatePresence>` in `template.tsx` can't keep it mounted long enough to
+ * animate out without relying on private Next.js internals. React's
+ * `<ViewTransition>` is the supported path for exits if they are needed later.
  */
 export const pageVariants: Variants = {
   initial: {
@@ -60,5 +66,24 @@ export const staggerContainerVariants: Variants = {
   animate: {
     transition: transitions.stagger,
   },
+};
+
+/**
+ * Dropdown menus / popovers: short fade with a 6px drop.
+ * Use with <AnimatePresence> so the menu also animates out.
+ */
+export const dropdownVariants: Variants = {
+  initial: { opacity: 0, y: -6 },
+  animate: { opacity: 1, y: 0, transition: transitions.micro },
+  exit: { opacity: 0, y: -4, transition: transitions.microExit },
+};
+
+/**
+ * Inline status cards (selected file, validation error, panels swapping).
+ */
+export const statusCardVariants: Variants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: transitions.smooth },
+  exit: { opacity: 0, y: -4, transition: transitions.microExit },
 };
 

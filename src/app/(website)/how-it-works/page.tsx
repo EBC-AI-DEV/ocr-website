@@ -40,7 +40,7 @@ export default function HowItWorksPage() {
               copy: t("howItWorks.step3Desc"),
             },
           ].map((step) => (
-            <article key={step.n} className="relative bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-shadow duration-300">
+            <article key={step.n} className="relative bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-700 transition-[box-shadow,transform,border-color] duration-300 ease-out">
               <span className="absolute -top-4 -left-4 flex items-center justify-center w-12 h-12 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg">
                 {step.n}
               </span>
@@ -60,7 +60,7 @@ export default function HowItWorksPage() {
         <div className="text-center mt-12">
           <Link
             href="/upload"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-px active:translate-y-0 active:scale-[0.98] transition-[background-color,box-shadow,transform] duration-200 ease-out"
           >
             <Icon name="upload" size={17} /> Start Converting Now
           </Link>

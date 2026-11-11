@@ -143,7 +143,7 @@ export function OCRResult({
               className="w-full h-full flex-1 p-4 sm:p-5 text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-100 bg-slate-50/50 dark:bg-slate-950/40 border border-slate-200/90 dark:border-slate-800 rounded-xl resize-none focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 dark:focus:border-blue-500 transition-all font-sans shadow-inner selection:bg-blue-100 dark:selection:bg-blue-900/50"
               value={text}
               onChange={(e) => onTextChange(e.target.value)}
-              style={{ fontFamily: "'Kantumruy Pro', 'Inter', system-ui, sans-serif" }}
+              style={{ fontFamily: '"Nokora", sans-serif' }}
               placeholder={isKm ? "អត្ថបទដែលបានស្រង់នឹងបង្ហាញនៅទីនេះ..." : "Extracted text will appear here..."}
             />
           </div>

@@ -132,10 +132,10 @@ export function Toast({
         }
         @keyframes toastProgress {
           0% {
-            width: 100%;
+            transform: scaleX(1);
           }
           100% {
-            width: 0%;
+            transform: scaleX(0);
           }
         }
       `}</style>
@@ -186,7 +186,7 @@ export function Toast({
         {duration > 0 && (
           <div className="h-0.5 w-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden">
             <div
-              className={`h-full ${styleConfig.progress}`}
+              className={`h-full w-full origin-left ${styleConfig.progress}`}
               style={{
                 animation: `toastProgress ${duration}ms linear forwards`,
                 animationPlayState: isPaused ? "paused" : "running",

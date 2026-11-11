@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Toast } from "@/components/ui/Toast";
@@ -9,6 +10,7 @@ import { OCRResult } from "@/components/ocr/OCRResult";
 import { ProcessingState } from "@/components/ocr/ProcessingState";
 import { useOCR } from "@/hooks/useOCR";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { statusCardVariants } from "@/lib/motion/variants";
 
 export default function UploadPage() {
   const { t } = useLanguage();
@@ -34,8 +36,16 @@ export default function UploadPage() {
     <>
       <section className="w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 py-8 sm:py-10 px-4 sm:px-6" id="ocr-tool">
         <div className="max-w-6xl mx-auto">
+          <AnimatePresence mode="wait" initial={false}>
           {status === "ready" ? (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md p-6 sm:p-8 md:p-10">
+            <motion.div
+              key="uploader"
+              variants={statusCardVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md p-6 sm:p-8 md:p-10"
+            >
               <div className="text-center mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                   {t("ocr.title")}
@@ -53,12 +63,14 @@ export default function UploadPage() {
                   onClearError={clearError}
                 />
                 <Button
-                  className="w-full h-14 text-base font-bold flex items-center justify-center gap-3 cursor-pointer"
+                  className="group w-full h-14 text-base font-bold flex items-center justify-center gap-3 cursor-pointer"
                   onClick={extractText}
                   disabled={!uploadedFile}
                 >
                   <Icon name="scan" size={18} /> {t("ocr.extracting")}
-                  <Icon name="arrow" size={17} />
+                  <span className="inline-flex transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-disabled:translate-x-0">
+                    <Icon name="arrow" size={17} />
+                  </span>
                 </Button>
                 <div className="flex items-center justify-center gap-6 text-xs text-slate-600 dark:text-slate-400">
                   <span className="flex items-center gap-2">
@@ -72,9 +84,17 @@ export default function UploadPage() {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ) : (
-            <div className="space-y-6" id="results">
+            <motion.div
+              key="workspace"
+              variants={statusCardVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="space-y-6"
+              id="results"
+            >
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                   <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
@@ -91,31 +111,45 @@ export default function UploadPage() {
                   <Icon name="upload" size={15} /> {t("ocr.tryAnother")}
                 </Button>
               </div>
-              {status === "processing" ? (
-                <ProcessingState />
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                  {uploadedFile && (
-                    <FilePreview
-                      fileName={uploadedFile.name}
-                      previewUrl={uploadedFile.previewUrl}
-                      fileType={uploadedFile.type}
-                      fileSize={uploadedFile.size}
-                    />
-                  )}
-                  <OCRResult
-                    text={text}
-                    onTextChange={setText}
-                    onCopy={copyText}
-                    onDownloadText={downloadText}
-                    onDownloadWord={downloadWord}
-                    onClear={() => setText("")}
-                    onRetry={extractText}
+              {/* FilePreview stays mounted from processing to result, so the
+                  document isn't reloaded and the layout doesn't jump. */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {uploadedFile && (
+                  <FilePreview
+                    fileName={uploadedFile.name}
+                    previewUrl={uploadedFile.previewUrl}
+                    fileType={uploadedFile.type}
+                    fileSize={uploadedFile.size}
                   />
-                </div>
-              )}
-            </div>
+                )}
+                {status === "processing" ? (
+                  // On mobile, show progress before the preview.
+                  <div className="grid min-w-0 order-first lg:order-none">
+                    <ProcessingState fileName={uploadedFile?.name} />
+                  </div>
+                ) : (
+                  <motion.div
+                    key="result"
+                    className="grid min-w-0"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <OCRResult
+                      text={text}
+                      onTextChange={setText}
+                      onCopy={copyText}
+                      onDownloadText={downloadText}
+                      onDownloadWord={downloadWord}
+                      onClear={() => setText("")}
+                      onRetry={extractText}
+                    />
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       </section>
 

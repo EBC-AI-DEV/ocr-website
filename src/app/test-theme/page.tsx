@@ -59,7 +59,7 @@ export default function DesignSystemPage() {
             <div style={{ display: "grid", gap: "20px" }}>
               <div>
                 <p style={{ fontSize: "12px", color: "var(--muted)", marginBottom: "8px" }}>
-                  Kantumruy Pro (Khmer Primary)
+                  Nokora (Khmer Primary)
                 </p>
                 <p className="khmer" style={{ fontSize: "24px", fontWeight: 600 }}>
                   ការវាយអក្សរខ្មែរ - Khmer Typing

@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import { staggerContainerVariants } from "@/lib/motion/variants";
-import { ReactNode } from "react";
+import { motion, type Variants } from "motion/react";
+import { ReactNode, useMemo } from "react";
 
 interface StaggerContainerProps {
   children: ReactNode;
@@ -11,37 +10,31 @@ interface StaggerContainerProps {
   delayChildren?: number;
 }
 
+/** Staggers children that use `initial`/`animate` variants. */
 export function StaggerContainer({
   children,
   className = "",
   staggerDelay = 0.08,
   delayChildren = 0.05,
 }: StaggerContainerProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  if (shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
-  const customVariants = {
-    initial: {},
-    animate: {
-      transition: {
-        staggerChildren: staggerDelay,
-        delayChildren,
+  const variants = useMemo<Variants>(
+    () => ({
+      initial: {},
+      animate: {
+        transition: { staggerChildren: staggerDelay, delayChildren },
       },
-    },
-  };
+    }),
+    [staggerDelay, delayChildren]
+  );
 
   return (
     <motion.div
       initial="initial"
       animate="animate"
-      variants={customVariants}
+      variants={variants}
       className={className}
     >
       {children}
     </motion.div>
   );
 }
-

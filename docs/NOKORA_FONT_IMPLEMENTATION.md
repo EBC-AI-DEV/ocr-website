@@ -10,7 +10,7 @@ Implemented Nokora as the primary font family for all Khmer text across the webs
 Added Nokora from Google Fonts with all available weights:
 
 ```typescript
-import { Inter, Kantumruy_Pro, Moul, Nokora } from "next/font/google";
+import { Inter, Moul, Nokora } from "next/font/google";
 
 const nokora = Nokora({
   variable: "--font-nokora",
@@ -30,7 +30,7 @@ const nokora = Nokora({
 
 Added to root HTML element:
 ```typescript
-className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable}`}
+className={`${inter.variable} ${moul.variable} ${nokora.variable}`}
 ```
 
 Creates CSS variable: `--font-nokora`
@@ -41,7 +41,7 @@ Creates CSS variable: `--font-nokora`
 ```css
 body {
   margin: 0;
-  font-family: "Nokora", var(--font-nokora), "Kantumruy Pro", var(--font-kantumruy-pro), var(--font-inter), "Inter", sans-serif;
+  font-family: "Nokora", var(--font-nokora), sans-serif;
   -webkit-font-smoothing: antialiased;
   font-optical-sizing: auto;
 }
@@ -50,22 +50,20 @@ body {
 #### Khmer Text Class
 ```css
 .khmer {
-  font-family: "Nokora", var(--font-nokora), var(--font-kantumruy-pro), "Kantumruy Pro", var(--font-inter), "Inter", sans-serif;
+  font-family: "Nokora", var(--font-nokora), sans-serif;
   font-optical-sizing: auto;
 }
 ```
 
 **Font Stack Priority:**
-1. Nokora (Google Fonts)
-2. CSS Variable fallback
-3. Kantumruy Pro (fallback)
-4. Inter (fallback)
-5. System sans-serif
+1. Nokora
+2. `var(--font-nokora)` (the self-hosted font from `next/font`)
+3. System sans-serif
 
 #### Decorative Khmer Class
 ```css
 .khmer-decorative {
-  font-family: var(--font-moul), "Moul", "Nokora", var(--font-nokora), var(--font-kantumruy-pro), "Kantumruy Pro", sans-serif;
+  font-family: 'Moul', "Nokora", var(--font-nokora), sans-serif;
   font-optical-sizing: auto;
 }
 ```
@@ -284,13 +282,10 @@ font-size: 11px-13px; font-weight: 300;
 ## Fallback Strategy
 
 ```
-Nokora → Kantumruy Pro → Inter → System Sans-Serif
+Nokora → System Sans-Serif
 ```
 
-If Nokora fails to load:
-1. Kantumruy Pro provides similar Khmer rendering
-2. Inter handles Latin gracefully
-3. System font ensures text always displays
+If Nokora fails to load, the system sans-serif font ensures text always displays.
 
 ## Dark Mode Compatibility
 
@@ -320,14 +315,8 @@ Nokora renders beautifully in both light and dark modes:
 - [x] No FOUT (Flash of Unstyled Text)
 - [x] TypeScript compilation passes
 
-## Comparison with Previous Fonts
+## Why Nokora
 
-### Before (Kantumruy Pro)
-- Modern, clean
-- Good for UI elements
-- Limited weight options
-
-### After (Nokora)
 - More traditional Khmer aesthetic
 - 5 weight options (100-900)
 - Better optical sizing

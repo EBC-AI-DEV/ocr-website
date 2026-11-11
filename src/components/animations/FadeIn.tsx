@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { ReactNode } from "react";
+import { easings } from "@/lib/motion/config";
 
 interface FadeInProps {
   children: ReactNode;
@@ -10,22 +11,13 @@ interface FadeInProps {
   className?: string;
 }
 
+/** Opacity-only fade. Reduced motion handled globally by <MotionProvider>. */
 export function FadeIn({ children, delay = 0, duration = 0.4, className = "" }: FadeInProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  if (shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{
-        duration,
-        delay,
-        ease: [0.25, 1, 0.5, 1],
-      }}
+      transition={{ duration, delay, ease: easings.out }}
       className={className}
     >
       {children}

@@ -153,7 +153,7 @@ ocr-website/
 - **React:** 19.3.0
 - **TypeScript:** 5.x
 - **Styling:** Tailwind CSS 4 + CSS Variables
-- **Fonts:** Google Fonts (Nokora, Kantumruy Pro, Moul, Inter)
+- **Fonts:** Google Fonts (Nokora, Moul, Inter)
 
 ### Build Tools
 - **Bundler:** Turbopack (Next.js 16)

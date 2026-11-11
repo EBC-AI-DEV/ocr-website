@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { pageVariants } from "@/lib/motion/variants";
 import { ReactNode } from "react";
 
@@ -9,13 +9,14 @@ interface PageTransitionProps {
   className?: string;
 }
 
+/**
+ * Route entrance: fade in + slide up (opacity 0 → 1, y 12px → 0, 0.45s easeOut).
+ *
+ * Reduced motion is handled by <MotionProvider> (`reducedMotion="user"`):
+ * the slide is skipped and only the fade remains. We deliberately always
+ * render `motion.div` so server and client markup match during hydration.
+ */
 export function PageTransition({ children, className = "" }: PageTransitionProps) {
-  const shouldReduceMotion = useReducedMotion();
-
-  if (shouldReduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
   return (
     <motion.div
       initial="initial"
@@ -27,4 +28,3 @@ export function PageTransition({ children, className = "" }: PageTransitionProps
     </motion.div>
   );
 }
-

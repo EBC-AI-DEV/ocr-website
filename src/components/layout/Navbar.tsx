@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/components/ui/Icon";
+import { dropdownVariants } from "@/lib/motion/variants";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -173,11 +175,23 @@ export function Navbar() {
                 className="w-5 h-3.5 object-cover rounded-sm shadow-sm"
               />
               <span className="hidden sm:inline">{language === "en" ? "EN" : "KH"}</span>
-              <Icon name="chevron" size={12} />
+              <Icon
+                name="chevron"
+                size={12}
+                className={`transition-transform duration-200 ease-out ${langMenuOpen ? "rotate-180" : ""}`}
+              />
             </button>
 
+            <AnimatePresence>
             {langMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 min-w-[180px] bg-white dark:bg-slate-900/95 backdrop-blur-lg border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-slate-950/50 py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <motion.div
+                key="lang-menu"
+                variants={dropdownVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                style={{ transformOrigin: "top right" }}
+                className="absolute top-full right-0 mt-2 min-w-[180px] bg-white dark:bg-slate-900/95 backdrop-blur-lg border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-2xl dark:shadow-slate-950/50 py-1.5 z-50">
                 <button
                   onClick={() => {
                     setLanguage("en");
@@ -220,8 +234,9 @@ export function Navbar() {
                   <span className="flex-1 text-left">ខ្មែរ</span>
                   {language === "km" && <Icon name="check" size={16} />}
                 </button>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
 
           {/* Mobile Menu Toggle Button */}
@@ -237,11 +252,17 @@ export function Navbar() {
       </div>
 
       {/* Mobile Navigation Menu Dropdown (< lg) */}
+      <AnimatePresence>
       {menuOpen && (
-        <div
+        <motion.div
+          key="mobile-menu"
+          variants={dropdownVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
           role="navigation"
           aria-label="Mobile navigation"
-          className="lg:hidden w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-xl shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-top-2"
+          className="lg:hidden absolute inset-x-0 top-full w-full border-t border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shadow-xl"
         >
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col space-y-1">
             <Link
@@ -313,8 +334,9 @@ export function Navbar() {
               <span>{t("header.uploadFile")}</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </header>
   );
 }

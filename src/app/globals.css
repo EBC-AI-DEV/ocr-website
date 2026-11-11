@@ -1,5 +1,5 @@
 /* Google Fonts Import - Typography System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Moul&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Moul&family=Nokora:wght@100;300;400;700;900&display=swap');
 
 @import "tailwindcss";
 
@@ -110,7 +110,7 @@
 
   body {
     margin: 0;
-    font-family: 'Kantumruy Pro', 'Inter', sans-serif;
+    font-family: "Nokora", sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -203,13 +203,13 @@
 
 /* Typography Classes */
 .khmer {
-  font-family: 'Kantumruy Pro', 'Inter', sans-serif;
+  font-family: "Nokora", sans-serif;
   line-height: 1.7;
   font-optical-sizing: auto;
 }
 
 .khmer-display {
-  font-family: 'Moul', 'Kantumruy Pro', sans-serif;
+  font-family: 'Moul', "Nokora", sans-serif;
   line-height: 1.6;
   font-optical-sizing: auto;
 }
@@ -469,13 +469,26 @@ nav a.active::after {
   font-size: 15px;
   font-weight: 700;
   line-height: 1;
-  transition: all 0.18s ease;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.18s ease;
   white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Subtle press feedback (transform only, no layout cost) */
+.button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.08s;
 }
 
 .button:disabled {
   opacity: 0.68;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
 /* PRIMARY BUTTON - CRITICAL: Always #1a75bb background in both modes */
@@ -603,7 +616,7 @@ nav a.active::after {
 
 .hero h1 span {
   color: var(--blue);
-  font-family: 'Moul', 'Kantumruy Pro', sans-serif;
+  font-family: 'Moul', "Nokora", sans-serif;
   line-height: 1.6;
 }
 
@@ -708,12 +721,13 @@ nav a.active::after {
 .visual-document::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.9), transparent);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8), 0 0 4px rgba(99, 102, 241, 0.9);
+  inset: 0;
+  /* 2px laser line with a soft glow band; the whole layer is translated */
+  background:
+    linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.9), transparent) 0 6px / 100% 2px no-repeat,
+    radial-gradient(ellipse at center, rgba(59, 130, 246, 0.35), transparent 70%) 0 0 / 100% 14px no-repeat;
   animation: laserScan 3s ease-in-out infinite;
+  will-change: transform, opacity;
   pointer-events: none;
 }
 
@@ -3426,17 +3440,15 @@ nav a.active::after {
 @keyframes pulseGlow {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.28);
   }
   50% {
-    transform: scale(1.06);
-    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.45);
+    transform: scale(1.04);
   }
 }
 
 @keyframes laserScan {
   0% {
-    top: 5%;
+    transform: translateY(0%);
     opacity: 0;
   }
   15% {
@@ -3446,7 +3458,7 @@ nav a.active::after {
     opacity: 1;
   }
   100% {
-    top: 92%;
+    transform: translateY(88%);
     opacity: 0;
   }
 }
@@ -3495,16 +3507,85 @@ nav a.active::after {
   animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.hero-copy {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
 .hero-visual {
   animation: scaleIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
 }
 
+/* --------------------------------------------------------------------------
+   Loading primitives (transform/opacity only)
+   -------------------------------------------------------------------------- */
+
+/* Indeterminate progress: used when the API reports no real progress */
+.progress-indeterminate {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-indeterminate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--progress-color, #1a75bb) 30%, var(--progress-color, #1a75bb) 70%, transparent);
+  animation: progressIndeterminate 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform;
+}
+
+@keyframes progressIndeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* Skeleton placeholder with a light shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e2e8f0;
+}
+
+[data-theme="dark"] .skeleton {
+  background: #1e293b;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
+[data-theme="dark"] .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.12), transparent);
+}
+
+@keyframes skeletonShimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
 /* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
+  /* Keep loading indicators meaningful without movement */
+  .progress-indeterminate::before {
+    animation: none !important;
+    width: 100%;
+    transform: none;
+    opacity: 0.55;
+  }
+
+  .skeleton::after {
+    display: none;
+  }
+
   *,
   *::before,
   *::after {

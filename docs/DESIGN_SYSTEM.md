@@ -12,14 +12,14 @@ This design system provides a complete bilingual (Khmer and English) UI framewor
 
 Three fonts are used, each with a specific role:
 
-#### **Kantumruy Pro** (Khmer Primary)
+#### **Nokora** (Khmer Primary)
 - **Purpose**: All Khmer body text, headings, buttons, and navigation
-- **Weights**: 400, 500, 600, 700
+- **Weights**: 100, 300, 400, 700, 900
 - **Usage**: Default font for Khmer content
 - **CSS Class**: `.khmer`
 
 ```css
-font-family: 'Kantumruy Pro', 'Inter', sans-serif;
+font-family: "Nokora", var(--font-nokora), sans-serif;
 ```
 
 #### **Inter** (Latin & Numbers)
@@ -39,7 +39,7 @@ font-family: 'Inter', sans-serif;
 - **CSS Class**: `.khmer-display`
 
 ```css
-font-family: 'Moul', 'Kantumruy Pro', sans-serif;
+font-family: 'Moul', "Nokora", var(--font-nokora), sans-serif;
 ```
 
 ### Khmer Typography Rules
@@ -65,7 +65,7 @@ font-family: 'Moul', 'Kantumruy Pro', sans-serif;
 Add this to your CSS:
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Kantumruy+Pro:wght@400;500;600;700&family=Moul&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Moul&display=swap');
 ```
 
 ---
