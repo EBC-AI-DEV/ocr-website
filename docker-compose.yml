@@ -1,0 +1,15 @@
+services:
+  ocr-website:
+    image: ${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ocr-website
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      OCR_API_URL: ${OCR_API_URL}
+      OCR_API_USERNAME: ${OCR_API_USERNAME}
+      OCR_API_SECRET_KEY: ${OCR_API_SECRET_KEY}

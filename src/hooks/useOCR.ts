@@ -91,7 +91,13 @@ export function useOCR() {
               const errorMsg = `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`;
               setError(errorMsg);
               setStatus("error");
-              setToast({ message: errorMsg, type: "error" });
+              setToast({
+                title: isKm ? "លើសដែនកំណត់ទំព័រ PDF" : "PDF Page Limit Exceeded",
+                message: isKm
+                  ? `ឯកសារ PDF មាន ${pageCount} ទំព័រ (ដែនកំណត់ត្រឹម ៥០ ទំព័រ)។ សូមជ្រើសរើសឯកសារត្រឹម ៥០ ទំព័រ ឬបំបែកឯកសារជាផ្នែកៗ។`
+                  : `PDF has ${pageCount} pages; the limit is 50. Please select a file with up to 50 pages.`,
+                type: "error",
+              });
             }
           })
           .catch((err) => {
@@ -175,7 +181,13 @@ export function useOCR() {
           setError(errorMsg);
           setStatus("error");
           setProgress(0);
-          setToast({ message: errorMsg, type: "error" });
+          setToast({
+            title: isKm ? "លើសដែនកំណត់ទំព័រ PDF" : "PDF Page Limit Exceeded",
+            message: isKm
+              ? `ឯកសារ PDF មាន ${pageCount} ទំព័រ (ដែនកំណត់ត្រឹម ៥០ ទំព័រ)។ សូមជ្រើសរើសឯកសារត្រឹម ៥០ ទំព័រ ឬបំបែកឯកសារជាផ្នែកៗ។`
+              : `PDF has ${pageCount} pages; the limit is 50. Please select a file with up to 50 pages.`,
+            type: "error",
+          });
           return;
         }
 

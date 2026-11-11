@@ -315,6 +315,23 @@ export function FilePreview({
         )}
       </div>
 
+      {/* Warning banner when PDF exceeds max page limit */}
+      {isPDF && totalPages > 50 && (
+        <div className="px-5 py-2.5 bg-red-50 dark:bg-red-950/60 border-b border-red-200 dark:border-red-900/60 flex items-center justify-between text-xs text-red-700 dark:text-red-300">
+          <span className="flex items-center gap-2">
+            <Icon name="alert" size={15} className="text-red-600 dark:text-red-400 flex-shrink-0" />
+            <span className="font-semibold">
+              {isKm
+                ? `ឯកសារនេះមាន ${totalPages} ទំព័រ (លើសពីដែនកំណត់ ៥០ ទំព័រ)`
+                : `This document has ${totalPages} pages (limit is 50 pages)`}
+            </span>
+          </span>
+          <span className="text-[11px] text-red-600 dark:text-red-400 font-medium hidden sm:inline">
+            {isKm ? "សូមជ្រើសរើសឯកសារត្រឹម ៥០ ទំព័រ" : "Please choose a file with up to 50 pages"}
+          </span>
+        </div>
+      )}
+
       {/* Document Viewer Stage */}
       <div
         ref={containerRef}

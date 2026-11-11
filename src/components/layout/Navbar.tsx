@@ -68,11 +68,21 @@ function Logo({ onClick }: LogoProps) {
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<string>("home");
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.replace("#", "");
+      if (["home", "how-it-works", "about"].includes(hash)) {
+        return hash;
+      }
+    }
+    return "home";
+  });
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const langRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const isManualNavigationRef = useRef<boolean>(false);
+  const manualNavTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
 
   const navItems = [
@@ -117,15 +127,33 @@ export function Navbar() {
 
     if (pathname === "/") {
       e.preventDefault();
-      const targetElement = document.getElementById(sectionId);
-      if (targetElement) {
-        targetElement.scrollIntoView({ behavior: "smooth" });
-        window.history.pushState(null, "", `/#${sectionId}`);
-        setActiveSection(sectionId);
-      } else if (sectionId === "home") {
+
+      // Lock scroll listener to prevent it from overriding active section during smooth scrolling
+      isManualNavigationRef.current = true;
+      if (manualNavTimeoutRef.current) {
+        clearTimeout(manualNavTimeoutRef.current);
+      }
+      manualNavTimeoutRef.current = setTimeout(() => {
+        isManualNavigationRef.current = false;
+      }, 1000);
+
+      // Immediately activate clicked section
+      setActiveSection(sectionId);
+      window.history.pushState(null, "", `/#${sectionId}`);
+
+      if (sectionId === "home") {
         window.scrollTo({ top: 0, behavior: "smooth" });
-        window.history.pushState(null, "", "/#home");
-        setActiveSection("home");
+      } else {
+        const targetElement = document.getElementById(sectionId);
+        if (targetElement) {
+          const navbarHeight = headerRef.current?.offsetHeight || 80;
+          const rect = targetElement.getBoundingClientRect();
+          const targetPosition = rect.top + window.scrollY - navbarHeight;
+          window.scrollTo({
+            top: Math.max(0, targetPosition),
+            behavior: "smooth",
+          });
+        }
       }
     }
   };
@@ -134,14 +162,17 @@ export function Navbar() {
   const handleLogoClick = () => {
     setMenuOpen(false);
     if (pathname === "/") {
-      const homeSection = document.getElementById("home");
-      if (homeSection) {
-        homeSection.scrollIntoView({ behavior: "smooth" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      isManualNavigationRef.current = true;
+      if (manualNavTimeoutRef.current) {
+        clearTimeout(manualNavTimeoutRef.current);
       }
-      window.history.pushState(null, "", "/#home");
+      manualNavTimeoutRef.current = setTimeout(() => {
+        isManualNavigationRef.current = false;
+      }, 1000);
+
       setActiveSection("home");
+      window.history.pushState(null, "", "/#home");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -149,40 +180,106 @@ export function Navbar() {
   useEffect(() => {
     if (pathname !== "/") return;
 
-    const sectionIds = ["home", "how-it-works", "about"];
-
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 140; // 80px navbar height + margin
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const id = sectionIds[i];
-        const el = document.getElementById(id);
-        if (el) {
-          const top = el.offsetTop;
-          if (scrollPosition >= top) {
-            setActiveSection(id);
-            return;
-          }
+      // Do not overwrite active section if user just clicked a menu link
+      if (isManualNavigationRef.current) return;
+
+      const navbarHeight = headerRef.current?.offsetHeight || 80;
+      const scrollY = window.scrollY;
+
+      // 1. If near the top, always highlight "home"
+      if (scrollY < 120) {
+        setActiveSection("home");
+        return;
+      }
+
+      // 2. If scrolled near the bottom of the page, highlight the last section ("about")
+      const windowHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      if (windowHeight + scrollY >= docHeight - 80) {
+        setActiveSection("about");
+        return;
+      }
+
+      // 3. Generous threshold for section activation (top 40% of viewport)
+      const threshold = navbarHeight + windowHeight * 0.4;
+
+      const aboutEl = document.getElementById("about");
+      if (aboutEl) {
+        const rect = aboutEl.getBoundingClientRect();
+        if (rect.top <= threshold && rect.bottom > navbarHeight + 40) {
+          setActiveSection("about");
+          return;
         }
       }
+
+      const howEl = document.getElementById("how-it-works");
+      if (howEl) {
+        const rect = howEl.getBoundingClientRect();
+        if (rect.top <= threshold && rect.bottom > navbarHeight + 40) {
+          setActiveSection("how-it-works");
+          return;
+        }
+      }
+
       setActiveSection("home");
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    // If user manually scrolls via wheel or touch, release navigation lock immediately
+    const handleUserInteraction = () => {
+      if (isManualNavigationRef.current) {
+        isManualNavigationRef.current = false;
+        if (manualNavTimeoutRef.current) {
+          clearTimeout(manualNavTimeoutRef.current);
+        }
+      }
+    };
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("wheel", handleUserInteraction, { passive: true });
+    window.addEventListener("touchmove", handleUserInteraction, { passive: true });
+
+    // Initial check if not locked
+    if (!isManualNavigationRef.current) {
+      handleScroll();
+    }
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("wheel", handleUserInteraction);
+      window.removeEventListener("touchmove", handleUserInteraction);
+      if (manualNavTimeoutRef.current) {
+        clearTimeout(manualNavTimeoutRef.current);
+      }
+    };
   }, [pathname]);
 
   // Handle URL hash on initial load or route transition smoothly
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
       const targetId = window.location.hash.replace("#", "");
-      const element = document.getElementById(targetId);
-      if (element) {
+      if (["home", "how-it-works", "about"].includes(targetId)) {
+        isManualNavigationRef.current = true;
+        if (manualNavTimeoutRef.current) {
+          clearTimeout(manualNavTimeoutRef.current);
+        }
+        manualNavTimeoutRef.current = setTimeout(() => {
+          isManualNavigationRef.current = false;
+        }, 1200);
+
         setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
           setActiveSection(targetId);
-        }, 120);
+          const element = document.getElementById(targetId);
+          if (element) {
+            const navbarHeight = headerRef.current?.offsetHeight || 80;
+            const rect = element.getBoundingClientRect();
+            const targetPosition = rect.top + window.scrollY - navbarHeight;
+            window.scrollTo({
+              top: Math.max(0, targetPosition),
+              behavior: "smooth",
+            });
+          }
+        }, 100);
       }
     }
   }, [pathname]);
@@ -219,11 +316,10 @@ export function Navbar() {
               <Link
                 key={item.id}
                 href={item.href}
-                className={`relative px-3.5 py-2 text-sm transition-colors duration-200 whitespace-nowrap cursor-pointer ${
-                  active
+                className={`relative px-3.5 py-2 text-sm transition-colors duration-200 whitespace-nowrap cursor-pointer ${active
                     ? "text-blue-600 dark:text-blue-400 font-semibold"
                     : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
-                }`}
+                  }`}
                 onClick={(e) => handleNavClick(e, item.id)}
               >
                 <span>{item.label}</span>
@@ -277,11 +373,10 @@ export function Navbar() {
                     setLanguage("en");
                     setLangMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    language === "en"
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${language === "en"
                       ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                  }`}
+                    }`}
                 >
                   <img
                     src="/images/english.png"
@@ -298,11 +393,10 @@ export function Navbar() {
                     setLanguage("km");
                     setLangMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                    language === "km"
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer ${language === "km"
                       ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 shadow-sm"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-                  }`}
+                    }`}
                 >
                   <img
                     src="/images/khmer.png"
@@ -344,11 +438,10 @@ export function Navbar() {
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                    active
+                  className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${active
                       ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
                       : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
-                  }`}
+                    }`}
                   onClick={(e) => handleNavClick(e, item.id)}
                 >
                   <span>{item.label}</span>

@@ -92,6 +92,10 @@ export function FileUploader({
           <small className="text-slate-500 dark:text-slate-400 font-semibold">
             {t("ocr.maximumSize")}
           </small>
+          <span className="text-slate-300 dark:text-slate-600">•</span>
+          <small className="text-slate-500 dark:text-slate-400 font-semibold">
+            {isKm ? `PDF អតិបរមា ${ocrConfig.maxPdfPages} ទំព័រ` : `PDF max ${ocrConfig.maxPdfPages} pages`}
+          </small>
         </div>
       </div>
 

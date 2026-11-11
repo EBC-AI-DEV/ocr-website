@@ -400,12 +400,28 @@ export function OCRResult({
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
             {isKm ? "បរាជ័យក្នុងការស្រង់អត្ថបទ" : "Extraction Failed"}
           </h3>
-          <p className="text-sm text-red-600 dark:text-red-400 mb-6 max-w-sm">
+          <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-3 max-w-sm">
             {errorMessage ||
               (isKm
                 ? "បានជួបប្រទះបញ្ហាក្នុងការដំណើរការ OCR។ សូមពិនិត្យឯកសារ ឬបណ្តាញ ហើយព្យាយាមម្តងទៀត។"
                 : "An error occurred during OCR processing. Please check your document or connection and retry.")}
           </p>
+
+          {/* Additional explanatory message for PDF page limit */}
+          {errorMessage && (errorMessage.includes("limit is 50") || errorMessage.includes("pages")) && (
+            <div className="mb-6 p-4 bg-red-50/80 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 rounded-xl text-left max-w-md shadow-xs space-y-1.5">
+              <div className="flex items-center gap-2 text-red-800 dark:text-red-300 font-bold text-xs uppercase tracking-wider">
+                <Icon name="alert" size={14} className="text-red-600 dark:text-red-400 flex-shrink-0" />
+                <span>{isKm ? "ព័ត៌មានអំពីដែនកំណត់ទំព័រ PDF" : "PDF Page Limit Policy"}</span>
+              </div>
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                {isKm
+                  ? "ប្រព័ន្ធអនុញ្ញាតឱ្យស្រង់អត្ថបទពីឯកសារ PDF ត្រឹមអតិបរមា ៥០ ទំព័រប៉ុណ្ណោះក្នុងមួយឯកសារ។ សូមបំបែកឯកសារជាផ្នែកតូចៗ ឬជ្រើសរើសឯកសារថ្មីដើម្បីបន្តដំណើរការ។"
+                  : "The system only supports PDF documents with a maximum of 50 pages per file. Please split your document into smaller parts or select another file to proceed."}
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button onClick={onRetry} className="cursor-pointer">
               <Icon name="scan" size={16} />
