@@ -304,7 +304,7 @@ export function Footer() {
                       rel="noopener noreferrer"
                       className="text-slate-700 transition-colors hover:text-[#EE4035] dark:text-slate-300 dark:hover:text-[#ff6b6b]"
                     >
-                      {t("footer.aboutUs")}
+                      {t("footer.aboutUsEbc")}
                     </a>
                   </li>
                   <li>
