@@ -68,11 +68,18 @@ function Logo({ onClick }: LogoProps) {
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("home");
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useTheme();
   const langRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
+
+  const navItems = [
+    { id: "home", href: "/#home", label: t("nav.home") },
+    { id: "how-it-works", href: "/#how-it-works", label: t("nav.howItWorks") },
+    { id: "about", href: "/#about", label: t("nav.about") },
+  ];
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -101,15 +108,97 @@ export function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
+  // Smooth scroll handler for nav items
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    sectionId: string
+  ) => {
+    setMenuOpen(false);
+
+    if (pathname === "/") {
+      e.preventDefault();
+      const targetElement = document.getElementById(sectionId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", `/#${sectionId}`);
+        setActiveSection(sectionId);
+      } else if (sectionId === "home") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.pushState(null, "", "/#home");
+        setActiveSection("home");
+      }
     }
-    return pathname === path || pathname?.startsWith(`${path}/`);
   };
 
-  const navLinkClass = (path: string) => {
-    const active = isActive(path);
+  // Smooth scroll handler for logo
+  const handleLogoClick = () => {
+    setMenuOpen(false);
+    if (pathname === "/") {
+      const homeSection = document.getElementById("home");
+      if (homeSection) {
+        homeSection.scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      window.history.pushState(null, "", "/#home");
+      setActiveSection("home");
+    }
+  };
+
+  // ScrollSpy to highlight active section on the landing page
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const sectionIds = ["home", "how-it-works", "about"];
+
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 140; // 80px navbar height + margin
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const id = sectionIds[i];
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.offsetTop;
+          if (scrollPosition >= top) {
+            setActiveSection(id);
+            return;
+          }
+        }
+      }
+      setActiveSection("home");
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
+
+  // Handle URL hash on initial load or route transition smoothly
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const targetId = window.location.hash.replace("#", "");
+      const element = document.getElementById(targetId);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+          setActiveSection(targetId);
+        }, 120);
+      }
+    }
+  }, [pathname]);
+
+  const isSectionActive = (sectionId: string) => {
+    if (pathname === "/") {
+      return activeSection === sectionId;
+    }
+    if (sectionId === "home") {
+      return pathname === "/";
+    }
+    return pathname === `/${sectionId}` || pathname?.startsWith(`/${sectionId}/`);
+  };
+
+  const navLinkClass = (sectionId: string) => {
+    const active = isSectionActive(sectionId);
     return `relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
       active
         ? "text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-bold shadow-xs after:absolute after:bottom-0 after:left-2.5 after:right-2.5 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:rounded-full after:shadow-sm after:shadow-blue-500/50"
@@ -125,7 +214,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo Section - Left */}
         <div className="flex-shrink-0">
-          <Logo />
+          <Logo onClick={pathname === "/" ? handleLogoClick : undefined} />
         </div>
 
         {/* Navigation Links - Center/Left (Desktop only) */}
@@ -133,15 +222,16 @@ export function Navbar() {
           className="hidden lg:flex items-center space-x-1.5"
           aria-label="Primary navigation"
         >
-          <Link href="/" className={navLinkClass("/")} onClick={() => setMenuOpen(false)}>
-            {t("nav.home")}
-          </Link>
-          <Link href="/how-it-works" className={navLinkClass("/how-it-works")} onClick={() => setMenuOpen(false)}>
-            {t("nav.howItWorks")}
-          </Link>
-          <Link href="/about" className={navLinkClass("/about")} onClick={() => setMenuOpen(false)}>
-            {t("nav.about")}
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={navLinkClass(item.id)}
+              onClick={(e) => handleNavClick(e, item.id)}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         {/* Action Items - Right */}
@@ -244,66 +334,26 @@ export function Navbar() {
           className="lg:hidden w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-xl shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-top-2"
         >
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col space-y-1">
-            <Link
-              href="/"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                isActive("/")
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{t("nav.home")}</span>
-              {isActive("/") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            <Link
-              href="/how-it-works"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                isActive("/how-it-works")
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{t("nav.howItWorks")}</span>
-              {isActive("/how-it-works") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
-            {/* <Link
-              href="/features"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                isActive("/features")
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{t("nav.features")}</span>
-              {isActive("/features") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link> */}
-            {/* <Link
-              href="/faq"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                isActive("/faq")
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{t("nav.faq")}</span>
-              {isActive("/faq") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link> */}
-            <Link
-              href="/about"
-              className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
-                isActive("/about")
-                  ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
-                  : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span>{t("nav.about")}</span>
-              {isActive("/about") && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
-            </Link>
+            {navItems.map((item) => {
+              const active = isSectionActive(item.id);
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={`flex items-center justify-between px-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                    active
+                      ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 font-bold shadow-xs"
+                      : "text-slate-700 dark:text-slate-300 hover:bg-blue-50/50 dark:hover:bg-slate-800/80 hover:text-blue-600 dark:hover:text-blue-400 active:scale-[0.98]"
+                  }`}
+                  onClick={(e) => handleNavClick(e, item.id)}
+                >
+                  <span>{item.label}</span>
+                  {active && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                  )}
+                </Link>
+              );
+            })}
             <Link
               href="/upload"
               className="mt-2 px-3 py-3 text-sm font-bold rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200 whitespace-nowrap text-center flex items-center justify-center gap-2 cursor-pointer"

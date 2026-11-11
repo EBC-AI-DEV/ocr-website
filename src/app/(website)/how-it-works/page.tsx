@@ -8,7 +8,7 @@ export default function HowItWorksPage() {
   const { t } = useLanguage();
 
   return (
-    <section className="bg-slate-50 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6">
+    <section id="how-it-works" className="bg-slate-50 dark:bg-slate-950 transition-colors duration-300 py-10 sm:py-14 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-3">

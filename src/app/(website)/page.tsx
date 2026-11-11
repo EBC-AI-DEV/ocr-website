@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="hero py-8 sm:py-10 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
+      <section id="home" className="hero py-8 sm:py-10 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 transition-colors duration-300">
         <div className="hero-inner">
           <div className="hero-copy">
             <h1>{t("hero.title")}</h1>
@@ -108,6 +108,72 @@ export default function Home() {
               <p>{step.copy}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="about-section py-16 sm:py-20 bg-white dark:bg-slate-900/60 border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-300" id="about">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
+              {t("about.eyebrow")}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
+              {t("about.title")}
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg">
+              {t("about.subtitle")}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
+              <span className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
+                <Icon name="spark" size={22} />
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {t("about.missionTitle")}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {t("about.missionText")}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
+              <span className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+                <Icon name="check" size={22} />
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {t("about.featuresTitle")}
+              </h3>
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                <li className="flex items-center gap-2">
+                  <Icon name="check" size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span>{t("about.feature1")}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Icon name="check" size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span>{t("about.feature2")}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Icon name="check" size={14} className="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span>{t("about.feature4")}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
+              <span className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
+                <Icon name="file" size={22} />
+              </span>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {t("about.privacyTitle")}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {t("about.privacyText")}
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

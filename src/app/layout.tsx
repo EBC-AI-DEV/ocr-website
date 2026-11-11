@@ -56,7 +56,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable}`}
+      className={`${inter.variable} ${kantumruyPro.variable} ${moul.variable} ${nokora.variable} scroll-smooth`}
     >
       <head>
         <script
