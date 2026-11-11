@@ -3,6 +3,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { OCRStatus, UploadedFile } from "@/types/ocr";
 import { validateFile } from "@/lib/validations";
+import { ocrConfig } from "@/config/site";
+import { getPDFPageCount } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ToastType } from "@/components/ui/Toast";
 
@@ -74,6 +76,28 @@ export function useOCR() {
         message: isKm ? "បានផ្ទុកឯកសារដោយជោគជ័យ" : "File uploaded successfully",
         type: "success",
       });
+
+      // Check PDF page count asynchronously on upload
+      const isPDF =
+        file.type === "application/pdf" ||
+        file.name.toLowerCase().endsWith(".pdf");
+
+      if (isPDF) {
+        file
+          .arrayBuffer()
+          .then((buffer) => {
+            const pageCount = getPDFPageCount(buffer);
+            if (pageCount > ocrConfig.maxPdfPages) {
+              const errorMsg = `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`;
+              setError(errorMsg);
+              setStatus("error");
+              setToast({ message: errorMsg, type: "error" });
+            }
+          })
+          .catch((err) => {
+            console.warn("Could not check PDF page count:", err);
+          });
+      }
     },
     [uploadedFile, language, isKm]
   );
@@ -87,6 +111,7 @@ export function useOCR() {
       URL.revokeObjectURL(uploadedFile.previewUrl);
     }
     setUploadedFile(null);
+    setError(null);
     setText("");
     setStatus("ready");
     setProgress(0);
@@ -142,6 +167,18 @@ export function useOCR() {
         file.name.toLowerCase().endsWith(".pdf");
 
       if (isPDF) {
+        // Enforce max PDF page count limit before making any requests
+        const buffer = await file.arrayBuffer();
+        const pageCount = getPDFPageCount(buffer);
+        if (pageCount > ocrConfig.maxPdfPages) {
+          const errorMsg = `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`;
+          setError(errorMsg);
+          setStatus("error");
+          setProgress(0);
+          setToast({ message: errorMsg, type: "error" });
+          return;
+        }
+
         // PDF OCR Streaming Integration
         const { processOCRStream } = await import("@/services/ocr.service");
 
@@ -279,10 +316,15 @@ export function useOCR() {
   }, [text, isKm]);
 
   const chooseAnotherFile = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     if (uploadedFile?.previewUrl) {
       URL.revokeObjectURL(uploadedFile.previewUrl);
     }
     setUploadedFile(null);
+    setError(null);
     setText("");
     setStatus("ready");
     setProgress(0);

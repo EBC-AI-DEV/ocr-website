@@ -197,15 +197,6 @@ export function Navbar() {
     return pathname === `/${sectionId}` || pathname?.startsWith(`/${sectionId}/`);
   };
 
-  const navLinkClass = (sectionId: string) => {
-    const active = isSectionActive(sectionId);
-    return `relative px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
-      active
-        ? "text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/60 font-bold shadow-xs after:absolute after:bottom-0 after:left-2.5 after:right-2.5 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:rounded-full after:shadow-sm after:shadow-blue-500/50"
-        : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-slate-800/50 active:scale-95"
-    }`;
-  };
-
   return (
     <header
       ref={headerRef}
@@ -217,21 +208,34 @@ export function Navbar() {
           <Logo onClick={pathname === "/" ? handleLogoClick : undefined} />
         </div>
 
-        {/* Navigation Links - Center/Left (Desktop only) */}
+        {/* Navigation Links - Center/Left (Desktop & Tablet) */}
         <nav
-          className="hidden lg:flex items-center space-x-1.5"
+          className="hidden md:flex items-center space-x-2 lg:space-x-3"
           aria-label="Primary navigation"
         >
-          {navItems.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={navLinkClass(item.id)}
-              onClick={(e) => handleNavClick(e, item.id)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = isSectionActive(item.id);
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                className={`relative px-3.5 py-2 text-sm transition-colors duration-200 whitespace-nowrap cursor-pointer ${
+                  active
+                    ? "text-blue-600 dark:text-blue-400 font-semibold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+                }`}
+                onClick={(e) => handleNavClick(e, item.id)}
+              >
+                <span>{item.label}</span>
+                {active && (
+                  <span
+                    className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full"
+                    aria-hidden="true"
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Action Items - Right */}
@@ -316,7 +320,7 @@ export function Navbar() {
 
           {/* Mobile Menu Toggle Button */}
           <button
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-900 dark:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:shadow-sm transition-all duration-200 cursor-pointer"
+            className="md:hidden w-10 h-10 flex items-center justify-center text-slate-900 dark:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 hover:shadow-sm transition-all duration-200 cursor-pointer"
             aria-label="Toggle navigation"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -326,12 +330,12 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation Menu Dropdown (< lg) */}
+      {/* Mobile Navigation Menu Dropdown (< md) */}
       {menuOpen && (
         <div
           role="navigation"
           aria-label="Mobile navigation"
-          className="lg:hidden w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-xl shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-top-2"
+          className="md:hidden w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50/98 dark:bg-slate-950/98 backdrop-blur-xl shadow-xl transition-all duration-200 animate-in fade-in slide-in-from-top-2"
         >
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col space-y-1">
             {navItems.map((item) => {

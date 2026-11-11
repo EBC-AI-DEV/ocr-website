@@ -129,6 +129,7 @@ export default function UploadPage() {
                   onDownloadWord={downloadWord}
                   onClear={() => setText("")}
                   onRetry={extractText}
+                  onChooseAnother={chooseAnotherFile}
                   status={status}
                   onCancel={cancelExtraction}
                   errorMessage={error}

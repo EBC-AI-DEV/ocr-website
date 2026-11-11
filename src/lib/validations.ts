@@ -1,4 +1,5 @@
 import { ocrConfig } from "@/config/site";
+import { getPDFPageCount } from "@/lib/utils";
 
 export interface ValidationResult {
   valid: boolean;
@@ -110,4 +111,36 @@ export function validateOCRText(text: string, lang: "en" | "km" = "en"): Validat
   }
 
   return { valid: true };
+}
+
+/**
+ * Validates a PDF's total page count against the configured maximum limit
+ * @param pageCount - Total number of pages in the PDF
+ * @returns ValidationResult with error message if page limit is exceeded
+ */
+export function validatePDFPages(pageCount: number): ValidationResult {
+  if (pageCount > ocrConfig.maxPdfPages) {
+    return {
+      valid: false,
+      error: `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`,
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Parses and validates a PDF ArrayBuffer against page count limit
+ * @param buffer - ArrayBuffer of the PDF file
+ * @returns Validation result with extracted pageCount
+ */
+export function validatePDFBuffer(
+  buffer: ArrayBuffer
+): ValidationResult & { pageCount: number } {
+  const pageCount = getPDFPageCount(buffer);
+  const result = validatePDFPages(pageCount);
+  return {
+    ...result,
+    pageCount,
+  };
 }

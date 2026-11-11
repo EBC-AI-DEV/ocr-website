@@ -15,6 +15,7 @@ interface OCRResultProps {
   onDownloadWord: () => void;
   onClear: () => void;
   onRetry: () => void;
+  onChooseAnother?: () => void;
   status?: OCRStatus;
   onCancel?: () => void;
   errorMessage?: string | null;
@@ -28,6 +29,7 @@ export function OCRResult({
   onDownloadWord,
   onClear,
   onRetry,
+  onChooseAnother,
   status = "ready",
   onCancel,
   errorMessage,
@@ -404,10 +406,22 @@ export function OCRResult({
                 ? "បានជួបប្រទះបញ្ហាក្នុងការដំណើរការ OCR។ សូមពិនិត្យឯកសារ ឬបណ្តាញ ហើយព្យាយាមម្តងទៀត។"
                 : "An error occurred during OCR processing. Please check your document or connection and retry.")}
           </p>
-          <Button onClick={onRetry} className="cursor-pointer">
-            <Icon name="scan" size={16} />
-            <span>{isKm ? "ព្យាយាមម្តងទៀត" : "Retry extraction"}</span>
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Button onClick={onRetry} className="cursor-pointer">
+              <Icon name="scan" size={16} />
+              <span>{isKm ? "ព្យាយាមម្តងទៀត" : "Retry extraction"}</span>
+            </Button>
+            {onChooseAnother && (
+              <Button
+                variant="secondary"
+                onClick={onChooseAnother}
+                className="cursor-pointer"
+              >
+                <Icon name="upload" size={15} />
+                <span>{isKm ? "ផ្ទុកឯកសារថ្មី" : "Choose another file"}</span>
+              </Button>
+            )}
+          </div>
         </div>
       ) : (
         /* Default Empty View */

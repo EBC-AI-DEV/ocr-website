@@ -1,5 +1,7 @@
 import { OCRLanguage, OCRStreamCallbacks, OCRStreamEvent } from "@/types/ocr";
 import { cleanOCRText } from "@/lib/ocr-cleaner";
+import { ocrConfig } from "@/config/site";
+import { getPDFPageCount } from "@/lib/utils";
 
 const OCR_ENDPOINT =
   process.env.NEXT_PUBLIC_OCR_API_URL || "https://ocr.ebc.edu.kh/api/ocr_api";
@@ -31,6 +33,18 @@ export async function processOCR(
   language: OCRLanguage,
   options: OCROptions = {}
 ): Promise<string> {
+  const isPDF =
+    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (isPDF) {
+    const buffer = await file.arrayBuffer();
+    const pageCount = getPDFPageCount(buffer);
+    if (pageCount > ocrConfig.maxPdfPages) {
+      throw new Error(
+        `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`
+      );
+    }
+  }
+
   const { retries = 2, timeout = 30000 } = options;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -208,6 +222,19 @@ export async function processOCRStream(
       handleUserAbort();
     } else {
       userSignal.addEventListener("abort", handleUserAbort, { once: true });
+    }
+  }
+
+  // Enforce max PDF page limit (e.g. 50 pages)
+  const isPDF =
+    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (isPDF) {
+    const buffer = await file.arrayBuffer();
+    const pageCount = getPDFPageCount(buffer);
+    if (pageCount > ocrConfig.maxPdfPages) {
+      throw new Error(
+        `PDF has ${pageCount} pages; the limit is ${ocrConfig.maxPdfPages}`
+      );
     }
   }
 

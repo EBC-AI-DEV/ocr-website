@@ -11,6 +11,7 @@ export const siteConfig = {
 
 export const ocrConfig = {
   maxFileSize: 10 * 1024 * 1024, // 10 MB
+  maxPdfPages: 50, // Maximum allowed PDF pages per document
   acceptedFormats: {
     "image/png": [".png"],
     "image/jpeg": [".jpg", ".jpeg"],

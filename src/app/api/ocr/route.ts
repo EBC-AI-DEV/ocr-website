@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cleanOCRText } from "@/lib/ocr-cleaner";
+import { getPDFPageCount } from "@/lib/utils";
+import { ocrConfig } from "@/config/site";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_PDF_PAGES = ocrConfig.maxPdfPages || 50;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 const REQUEST_TIMEOUT = 30000; // 30 seconds
 
@@ -43,6 +46,28 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Validate PDF page count
+    const isPDF =
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf");
+    if (isPDF) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const pageCount = getPDFPageCount(buffer);
+        if (pageCount > MAX_PDF_PAGES) {
+          return NextResponse.json(
+            {
+              error: `PDF has ${pageCount} pages; the limit is ${MAX_PDF_PAGES}`,
+              status: false,
+            },
+            { status: 400 }
+          );
+        }
+      } catch (err) {
+        console.warn("Could not determine PDF page count in API route:", err);
+      }
     }
 
     // Check for required environment variables
