@@ -80,9 +80,6 @@ export default function UploadPage() {
             <div className="space-y-6" id="results">
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                  <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
-                    {t("ocr.workspace")}
-                  </span>
                   <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                     {status === "uploading"
                       ? isKm
