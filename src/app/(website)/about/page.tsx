@@ -75,8 +75,8 @@ export default function AboutPage() {
             </h2>
             <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
               {t("about.contactText")}{" "}
-              <a href="mailto:hello@ebcocr.com" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-                hello@ebcocr.com
+              <a href="mailto:info@ebc.edu.kh" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                info@ebc.edu.kh
               </a>
             </p>
           </section>

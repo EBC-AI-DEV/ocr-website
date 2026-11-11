@@ -6,7 +6,7 @@ export const siteConfig = {
   description:
     "Turn any image or PDF into editable Khmer and English text—quickly, accurately, and securely. No account needed.",
   url: "https://ebcocr.com",
-  email: "hello@ebcocr.com",
+  email: "info@ebc.edu.kh",
 } as const;
 
 export const ocrConfig = {

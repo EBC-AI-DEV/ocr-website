@@ -115,9 +115,6 @@ export default function Home() {
       <section className="about-section py-16 sm:py-20 bg-white dark:bg-slate-900/60 border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-300" id="about">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
-              {t("about.eyebrow")}
-            </span>
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
               {t("about.title")}
             </h2>
