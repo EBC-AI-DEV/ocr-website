@@ -6,12 +6,12 @@ import { Toast } from "@/components/ui/Toast";
 import { FileUploader } from "@/components/ocr/FileUploader";
 import { FilePreview } from "@/components/ocr/FilePreview";
 import { OCRResult } from "@/components/ocr/OCRResult";
-import { ProcessingState } from "@/components/ocr/ProcessingState";
 import { useOCR } from "@/hooks/useOCR";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function UploadPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isKm = language === "km";
   const {
     status,
     text,
@@ -22,6 +22,7 @@ export default function UploadPage() {
     handleFileSelect,
     removeFile,
     extractText,
+    cancelExtraction,
     copyText,
     downloadText,
     downloadWord,
@@ -30,11 +31,13 @@ export default function UploadPage() {
     closeToast,
   } = useOCR();
 
+  const isInitialState = status === "ready" || status === "idle";
+
   return (
     <>
       <section className="w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 py-8 sm:py-10 px-4 sm:px-6" id="ocr-tool">
         <div className="max-w-6xl mx-auto">
-          {status === "ready" ? (
+          {isInitialState ? (
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md p-6 sm:p-8 md:p-10">
               <div className="text-center mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
@@ -81,7 +84,25 @@ export default function UploadPage() {
                     {t("ocr.workspace")}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                    {status === "processing" ? t("ocr.processing") : t("ocr.result")}
+                    {status === "uploading"
+                      ? isKm
+                        ? "កំពុងផ្ទុកឡើងឯកសារ"
+                        : "Uploading document"
+                      : status === "processing"
+                        ? t("ocr.processing")
+                        : status === "streaming"
+                          ? isKm
+                            ? "កំពុងទទួលអត្ថបទបន្តផ្ទាល់"
+                            : "Streaming text from document"
+                          : status === "cancelled"
+                            ? isKm
+                              ? "ការស្រង់អត្ថបទត្រូវបានបោះបង់"
+                              : "Text extraction cancelled"
+                            : status === "error"
+                              ? isKm
+                                ? "បរាជ័យក្នុងការស្រង់អត្ថបទ"
+                                : "Text extraction failed"
+                              : t("ocr.result")}
                   </h2>
                   <p className="text-slate-600 dark:text-slate-400">
                     {t("ocr.resultView")}
@@ -91,29 +112,28 @@ export default function UploadPage() {
                   <Icon name="upload" size={15} /> {t("ocr.tryAnother")}
                 </Button>
               </div>
-              {status === "processing" ? (
-                <ProcessingState />
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                  {uploadedFile && (
-                    <FilePreview
-                      fileName={uploadedFile.name}
-                      previewUrl={uploadedFile.previewUrl}
-                      fileType={uploadedFile.type}
-                      fileSize={uploadedFile.size}
-                    />
-                  )}
-                  <OCRResult
-                    text={text}
-                    onTextChange={setText}
-                    onCopy={copyText}
-                    onDownloadText={downloadText}
-                    onDownloadWord={downloadWord}
-                    onClear={() => setText("")}
-                    onRetry={extractText}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                {uploadedFile && (
+                  <FilePreview
+                    fileName={uploadedFile.name}
+                    previewUrl={uploadedFile.previewUrl}
+                    fileType={uploadedFile.type}
+                    fileSize={uploadedFile.size}
                   />
-                </div>
-              )}
+                )}
+                <OCRResult
+                  text={text}
+                  onTextChange={setText}
+                  onCopy={copyText}
+                  onDownloadText={downloadText}
+                  onDownloadWord={downloadWord}
+                  onClear={() => setText("")}
+                  onRetry={extractText}
+                  status={status}
+                  onCancel={cancelExtraction}
+                  errorMessage={error}
+                />
+              </div>
             </div>
           )}
         </div>

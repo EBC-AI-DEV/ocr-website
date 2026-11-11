@@ -24,10 +24,26 @@ export default function OCRUploadPage() {
     setIsProcessing(true);
     setError(null);
 
+    const isPDF =
+      file.type === "application/pdf" ||
+      file.name.toLowerCase().endsWith(".pdf");
+
     try {
-      const { processOCR } = await import("@/services/ocr.service");
-      const text = await processOCR(file, "both");
-      setExtractedText(text);
+      if (isPDF) {
+        const { processOCRStream } = await import("@/services/ocr.service");
+        await processOCRStream(file, {
+          onLine: (_lineText, allLines) => {
+            setExtractedText(allLines.join("\n"));
+          },
+          onDone: (doneText) => {
+            setExtractedText(doneText);
+          },
+        });
+      } else {
+        const { processOCR } = await import("@/services/ocr.service");
+        const text = await processOCR(file, "both");
+        setExtractedText(text);
+      }
     } catch (err) {
       console.error("OCR error:", err);
       setError(err instanceof Error ? err.message : "Failed to extract text");

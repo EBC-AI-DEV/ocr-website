@@ -128,6 +128,18 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const contentType = response.headers.get("content-type") || "";
+      if (mode === "events" || contentType.includes("ndjson") || contentType.includes("event-stream")) {
+        return new Response(response.body, {
+          status: response.status,
+          headers: {
+            "Content-Type": contentType || "application/x-ndjson",
+            "Cache-Control": "no-cache",
+            "Transfer-Encoding": "chunked",
+          },
+        });
+      }
+
       const data: OCRApiResponse = await response.json();
 
       const rawText = data.msg ?? data.text ?? "";
