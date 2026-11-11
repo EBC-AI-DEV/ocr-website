@@ -139,7 +139,6 @@ export function Navbar() {
 
       // Immediately activate clicked section
       setActiveSection(sectionId);
-      window.history.pushState(null, "", `/#${sectionId}`);
 
       if (sectionId === "home") {
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -171,7 +170,6 @@ export function Navbar() {
       }, 1000);
 
       setActiveSection("home");
-      window.history.pushState(null, "", "/#home");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -279,7 +277,11 @@ export function Navbar() {
               behavior: "smooth",
             });
           }
+          // Remove hash from the URL without reloading
+          window.history.replaceState(null, "", window.location.pathname);
         }, 100);
+      } else {
+        window.history.replaceState(null, "", window.location.pathname);
       }
     }
   }, [pathname]);
